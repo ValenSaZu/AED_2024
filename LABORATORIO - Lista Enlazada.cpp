@@ -31,7 +31,7 @@ struct LE {
     nodo <T>* head;
     U orden;
 
-    LE() : head(nullptr) {}  // Inicializar head a nullptr
+    LE() : head(nullptr) {}
 
     void add(T v) {
         nodo<T>* new_nodo = new nodo<T>(v);
@@ -60,7 +60,6 @@ struct LE {
             return;
         }
 
-        // Caso en que el nodo a eliminar es el primero
         if (head->valor == v) {
             nodo<T>* temp = head;
             head = head->next;
