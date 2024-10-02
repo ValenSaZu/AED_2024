@@ -1,0 +1,98 @@
+#include <iostream>
+using namespace std;
+
+struct CNode {
+    int v;
+    CNode* child[2];
+
+    CNode(int x) {
+        v = x;
+        child[0] = child[1] = nullptr;
+    }
+};
+
+class CBinTree {
+    CNode* root;
+
+public:
+    CBinTree() {
+        root = nullptr;
+    }
+
+    ~CBinTree() {
+        destroyTree(root);
+    }
+
+    void destroyTree(CNode* node) {
+        if (node) {
+            destroyTree(node->child[0]);
+            destroyTree(node->child[1]);
+            delete node;
+        }
+    }
+
+    bool find(int x, CNode**& p) {
+        for (p = &root; *p && (*p)->v != x; p = &((*p)->child[(*p)->v < x])) {}
+        return *p != nullptr;
+    }
+
+    bool Ins(int x) {
+        CNode** p;
+        if (find(x, p)) return false;
+        *p = new CNode(x);
+        return true;
+    }
+
+    bool Rem(int x) {
+        CNode** p;
+        if (!find(x, p)) return false;
+        if ((*p)->child[0] && (*p)->child[1]) {
+            CNode** q = Rep(p);
+            (*p)->v = (*q)->v;
+            p = q;
+        }
+        CNode* t = *p;
+        *p = (*p)->child[(*p)->child[1] != nullptr];
+        delete t;
+        return true;
+    }
+
+    CNode** Rep(CNode** p) {
+        CNode** q;
+        for (q = &((*p)->child[1]); (*q)->child[0]; q = &((*q)->child[0])) {}
+        return q;
+    }
+};
+int main() {
+    CBinTree tree;
+
+    cout << "Insertando valores 5, 3, 7, 2, 4, 6, 8" << endl;
+    tree.Ins(5);
+    tree.Ins(3);
+    tree.Ins(7);
+    tree.Ins(2);
+    tree.Ins(4);
+    tree.Ins(6);
+    tree.Ins(8);
+
+    cout << "Intentando insertar 5 nuevamente (ya existe): ";
+    if (!tree.Ins(5)) {
+        cout << "Error, 5 ya está en el árbol." << endl;
+    }
+
+    cout << "Eliminando nodo 7 (tiene dos hijos)..." << endl;
+    tree.Rem(7);
+
+    cout << "Eliminando nodo 2 (es hoja)..." << endl;
+    tree.Rem(2);
+
+    cout << "Eliminando nodo 3 (tiene un hijo)..." << endl;
+    tree.Rem(3);
+
+    cout << "Intentando eliminar 10 (no existe en el árbol): ";
+    if (!tree.Rem(10)) {
+        cout << "Error, 10 no está en el árbol." << endl;
+    }
+
+    return 0;
+}
