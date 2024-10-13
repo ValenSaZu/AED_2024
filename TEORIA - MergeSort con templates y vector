@@ -1,0 +1,57 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+template <typename T>
+vector<T> Ordenar(vector<T> A, vector<T> B) {
+    vector<T> ret;
+    T lonA = A.size();
+    T lonB = B.size();
+    T i = 0, j = 0;
+
+    while (i < lonA && j < lonB) {
+        if (A[i] < B[j]) {
+            ret.push_back(A[i]);
+            i++;
+        } else {
+            ret.push_back(B[j]);
+            j++;
+        }
+    }
+
+    while (i < lonA) {
+        ret.push_back(A[i]);
+        i++;
+    }
+    while (j < lonB) {
+        ret.push_back(B[j]);
+        j++;
+    }
+
+    return ret;
+}
+
+template <typename T>
+vector<T> MergeSort(vector<T> A) {
+    T lon = A.size();
+    if (lon <= 1) return A;
+
+    vector<T> izq(A.begin(), A.begin() + lon / 2);
+    vector<T> der(A.begin() + lon / 2, A.end());
+
+    return Ordenar(MergeSort(izq), MergeSort(der));
+}
+
+int main() {
+    vector<int> data = {38, 27, 43, 3, 9, 82, 10};
+    vector<int> sortedData = MergeSort(data);
+
+    cout << "Sorted array: ";
+    for (int num : sortedData) {
+        cout << num << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
