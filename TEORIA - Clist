@@ -1,0 +1,132 @@
+//CList es una estructura con dos punteros (head y tail) doblemente enlazada
+#include <iostream>
+
+using namespace std;
+
+template <class T>
+class CList {
+private:
+    struct Nodo {
+        T valor;
+        Nodo* next;
+        Nodo* prev;
+
+        Nodo(T val) : valor(val), next(nullptr), prev(nullptr) {}
+    };
+
+    Nodo* head;
+    Nodo* tail;
+    int size;
+
+public:
+    CList() : head(nullptr), tail(nullptr), size(0) {}
+
+    void push_front(T valor) {
+        Nodo* nuevoNodo = new Nodo(valor);
+        if (head == nullptr) {
+            head = tail = nuevoNodo;
+        } else {
+            nuevoNodo->next = head;
+            head->prev = nuevoNodo;
+            head = nuevoNodo;
+        }
+        size++;
+    }
+    
+    void push_back(T valor) {
+        Nodo* nuevoNodo = new Nodo(valor);
+        if (tail == nullptr) {
+            head = tail = nuevoNodo;
+        } else {
+            tail->next = nuevoNodo;
+            nuevoNodo->prev = tail;
+            tail = nuevoNodo;
+        }
+        size++;
+    }
+
+    void pop_front() {
+        if (head == nullptr) {
+            cout << "CList vacía\n";
+            return;
+        }
+        Nodo* temp = head;
+        head = head->next;
+        if (head != nullptr) {
+            head->prev = nullptr;
+        } else {
+            tail = nullptr;
+        }
+        delete temp;
+        size--;
+    }
+    
+    void pop_back() {
+        if (tail == nullptr) {
+            cout << "CList vacía\n";
+            return;
+        }
+        Nodo* temp = tail;
+        tail = tail->prev;
+        if (tail != nullptr) {
+            tail->next = nullptr;
+        } else {
+            head = nullptr;
+        }
+        delete temp;
+        size--;
+    }
+
+    T& operator[](int index) {
+        if (index < 0 || index >= size) {
+            throw out_of_range("Índice fuera de rango");
+        }
+        Nodo* temp = head;
+        for (int i = 0; i < index; i++) {
+            temp = temp->next;
+        }
+        return temp->valor;
+    }
+
+    int getSize() const {
+        return size;
+    }
+
+    void print() const {
+        Nodo* temp = head;
+        while (temp != nullptr) {
+            cout << temp->valor << " ";
+            temp = temp->next;
+        }
+        cout << endl;
+    }
+
+    ~CList() {
+        while (head != nullptr) {
+            pop_front();
+        }
+    }
+};
+
+int main() {
+    CList<int> lista;
+    lista.push_back(10);
+    lista.push_back(20);
+    lista.push_front(5);
+    lista.print();
+
+    cout << "Tamaño de la lista: " << lista.getSize() << endl;
+
+    lista.pop_front();
+    lista.print();
+
+    lista.pop_back();
+    lista.print();
+
+    cout << "Elemento en el índice 0: " << lista[0] << endl;
+
+    lista.pop_back();
+    lista.print();
+
+    return 0;
+}
