@@ -1,0 +1,91 @@
+#include <iostream>
+#include <stack>
+
+using namespace std;
+
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int val) : data(val), left(nullptr), right(nullptr) {}
+};
+
+void inorderTraversal(Node* root) {
+    stack<Node*> s;
+    Node* current = root;
+
+    while (current != nullptr || !s.empty()) {
+        while (current != nullptr) {
+            s.push(current);
+            current = current->left;
+        }
+        current = s.top();
+        s.pop();
+        cout << current->data << " ";
+        current = current->right;
+    }
+}
+
+void preorderTraversal(Node* root) {
+    if (root == nullptr) return;
+
+    stack<Node*> s;
+    s.push(root);
+
+    while (!s.empty()) {
+        Node* current = s.top();
+        s.pop();
+        cout << current->data << " ";
+        if (current->right != nullptr) {
+            s.push(current->right);
+        }
+        if (current->left != nullptr) {
+            s.push(current->left);
+        }
+    }
+}
+
+void postorderTraversal(Node* root) {
+    if (root == nullptr) return;
+
+    stack<Node*> s;
+    Node* current = root;
+    Node* lastVisited = nullptr;
+
+    while (!s.empty() || current != nullptr) {
+        if (current != nullptr) {
+            s.push(current);
+            current = current->left;
+        } else {
+            Node* peekNode = s.top();
+            if (peekNode->right != nullptr && lastVisited != peekNode->right) {
+                current = peekNode->right;
+            } else {
+                cout << peekNode->data << " ";
+                lastVisited = s.top();
+                s.pop();
+            }
+        }
+    }
+}
+
+int main() {
+    Node* root = new Node(4);
+    root->left = new Node(2);
+    root->right = new Node(5);
+    root->left->left = new Node(1);
+    root->left->right = new Node(3);
+
+    cout << "Inorder: ";
+    inorderTraversal(root);
+    cout << endl;
+    cout << "Preorder: ";
+    preorderTraversal(root);
+    cout << endl;
+    cout << "Postorder: ";
+    postorderTraversal(root);
+    cout << endl;
+
+    return 0;
+}
