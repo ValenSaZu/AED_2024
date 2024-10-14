@@ -1,0 +1,131 @@
+//CForwardList es una estructura con solo un puntero tail
+#include <iostream>
+
+template <class T>
+struct nodo {
+    T valor;
+    nodo<T>* prev;
+
+    nodo(T v, nodo<T>* p = nullptr) : valor(v), prev(p) {}
+};
+
+template <class T>
+struct CForwardList {
+    nodo<T>* tail;
+
+    CForwardList() : tail(nullptr) {}
+
+    void push_back(T a) {
+        nodo<T>* new_nodo = new nodo<T>(a);
+        if (tail) {
+            new_nodo->prev = tail;
+        }
+        tail = new_nodo;
+    }
+
+    void push_front(T a) {
+        if (!tail) {
+            push_back(a);
+            return;
+        }
+        nodo<T>* new_nodo = new nodo<T>(a, nullptr);
+        nodo<T>* recorre = tail;
+
+        while (recorre->prev) {
+            recorre = recorre->prev;
+        }
+        recorre->prev = new_nodo;
+    }
+
+    void pop_back() {
+        if (!tail) return;
+        nodo<T>* temp = tail;
+        tail = tail->prev;
+        delete temp;
+    }
+
+    void pop_front() {
+        if (!tail) return;
+        nodo<T>* recorre = tail;
+
+        if (!recorre->prev) {
+            delete recorre;
+            tail = nullptr;
+            return;
+        }
+
+        while (recorre->prev->prev) {
+            recorre = recorre->prev;
+        }
+        delete recorre->prev;
+        recorre->prev = nullptr;
+    }
+
+    T operator[](int i) {
+        if (i < 0 || i >= getSize()) {
+            throw std::out_of_range("Index out of range");
+        }
+        int n = getSize() - i - 1;
+        nodo<T>* recorre = tail;
+
+        while (n > 0) {
+            recorre = recorre->prev;
+            n--;
+        }
+        return recorre->valor;
+    }
+
+    int getSize() {
+        int count = 0;
+        nodo<T>* recorre = tail;
+
+        while (recorre) {
+            count++;
+            recorre = recorre->prev;
+        }
+        return count;
+    }
+};
+
+int main() {
+    CForwardList<int> lista;
+
+    lista.push_back(10);
+    lista.push_back(20);
+    lista.push_back(30);
+    std::cout << "Lista después de push_back: ";
+    for (int i = 0; i < 3; i++) {
+        std::cout << lista[i] << " ";
+    }
+    std::cout << std::endl;
+
+    lista.push_front(5);
+    std::cout << "Lista después de push_front: ";
+    for (int i = 0; i < 4; i++) {
+        std::cout << lista[i] << " ";
+    }
+    std::cout << std::endl;
+
+    lista.pop_back();
+    std::cout << "Lista después de pop_back: ";
+    for (int i = 0; i < 3; i++) {
+        std::cout << lista[i] << " ";
+    }
+    std::cout << std::endl;
+
+    lista.pop_front();
+    std::cout << "Lista después de pop_front: ";
+    for (int i = 0; i < 3; i++) {
+        std::cout << lista[i] << " ";
+    }
+    std::cout << std::endl;
+
+    try {
+        std::cout << "Elemento en índice 1: " << lista[1] << std::endl;
+        std::cout << "Elemento en índice 3: " << lista[3] << std::endl;
+    } catch (const std::out_of_range& e) {
+        std::cout << "Error: " << e.what() << std::endl;
+    }
+
+    return 0;
+}
