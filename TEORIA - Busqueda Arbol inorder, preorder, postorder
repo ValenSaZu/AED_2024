@@ -1,0 +1,100 @@
+#include <iostream>
+
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int value) {
+        data = value;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+
+class BinarySearchTree {
+private:
+    Node* root;
+
+    void insert(Node*& node, int value) {
+        if (node == nullptr) {
+            node = new Node(value);
+        } else if (value < node->data) {
+            insert(node->left, value);
+        } else {
+            insert(node->right, value);
+        }
+    }
+
+    void inorder(Node* node) {
+        if (node != nullptr) {
+            inorder(node->left);
+            cout << node->data << " ";
+            inorder(node->right);
+        }
+    }
+
+    void preorder(Node* node) {
+        if (node != nullptr) {
+            cout << node->data << " ";
+            preorder(node->left);
+            preorder(node->right);
+        }
+    }
+
+    void postorder(Node* node) {
+        if (node != nullptr) {
+            postorder(node->left);
+            postorder(node->right);
+            cout << node->data << " ";
+        }
+    }
+
+public:
+    BinarySearchTree() {
+        root = nullptr;
+    }
+
+    void insert(int value) {
+        insert(root, value);
+    }
+
+    void inorder() {
+        cout << "Inorder: ";
+        inorder(root);
+        cout << endl;
+    }
+
+    void preorder() {
+        cout << "Preorder: ";
+        preorder(root);
+        cout << endl;
+    }
+
+    void postorder() {
+        cout << "Postorder: ";
+        postorder(root);
+        cout << endl;
+    }
+};
+
+int main() {
+    BinarySearchTree bst;
+    
+    bst.insert(50);
+    bst.insert(30);
+    bst.insert(70);
+    bst.insert(20);
+    bst.insert(40);
+    bst.insert(60);
+    bst.insert(80);
+
+    bst.inorder();
+    bst.preorder();
+    bst.postorder();
+
+    return 0;
+}
