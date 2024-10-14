@@ -1,0 +1,89 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+template <typename T>
+class MergeSort {
+public:
+    virtual bool comparar(T a, T b) {
+        return a < b;
+    }
+    
+    vector<T> Ordenar(const vector<T>& A, const vector<T>& B) {
+        vector<T> ret;
+        size_t lonA = A.size();
+        size_t lonB = B.size();
+        size_t i = 0, j = 0;
+
+        while (i < lonA && j < lonB) {
+            if (comparar(A[i], B[j])) {
+                ret.push_back(A[i]);
+                i++;
+            } else {
+                ret.push_back(B[j]);
+                j++;
+            }
+        }
+
+        while (i < lonA) {
+            ret.push_back(A[i]);
+            i++;
+        }
+        while (j < lonB) {
+            ret.push_back(B[j]);
+            j++;
+        }
+
+        return ret;
+    }
+
+    vector<T> Sort(const vector<T>& A) {
+        size_t lon = A.size();
+        if (lon <= 1) return A;
+
+        vector<T> izq(A.begin(), A.begin() + lon / 2);
+        vector<T> der(A.begin() + lon / 2, A.end());
+
+        return Ordenar(Sort(izq), Sort(der));
+    }
+};
+
+template <typename T>
+class MergeSortAsc : public MergeSort<T> {
+public:
+    bool comparar(T a, T b) override {
+        return a < b;
+    }
+};
+
+template <typename T>
+class MergeSortDesc : public MergeSort<T> {
+public:
+    bool comparar(T a, T b) override {
+        return a > b;
+    }
+};
+
+int main() {
+    vector<int> data = {38, 27, 43, 3, 9, 82, 10};
+    MergeSortAsc<int> sorter;
+    vector<int> sortedData = sorter.Sort(data);
+
+    cout << "Sorted array: ";
+    for (int num : sortedData) {
+        cout << num << " ";
+    }
+    cout << endl;
+    
+    MergeSortDesc<int> sorter2;
+    vector<int> sortedData2 = sorter2.Sort(data);
+
+    cout << "Sorted array: ";
+    for (int num : sortedData2) {
+        cout << num << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
