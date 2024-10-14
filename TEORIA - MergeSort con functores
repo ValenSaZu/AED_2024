@@ -1,0 +1,83 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+template <class T>
+struct ASC {
+    bool operator()(const T& a, const T& b) const {
+        return a < b;
+    }
+};
+
+template <class T>
+struct DESC {
+    bool operator()(const T& a, const T& b) const {
+        return a > b;
+    }
+};
+
+template <class T, class U>
+struct MergeSort {
+    U comp;
+    vector<T> Ordenar(const vector<T>& A, const vector<T>& B) {
+        vector<T> ret;
+        size_t lonA = A.size();
+        size_t lonB = B.size();
+        size_t i = 0, j = 0;
+
+        while (i < lonA && j < lonB) {
+            if (comp(A[i], B[j])) {
+                ret.push_back(A[i]);
+                i++;
+            } else {
+                ret.push_back(B[j]);
+                j++;
+            }
+        }
+
+        while (i < lonA) {
+            ret.push_back(A[i]);
+            i++;
+        }
+        while (j < lonB) {
+            ret.push_back(B[j]);
+            j++;
+        }
+
+        return ret;
+    }
+
+    vector<T> Sort(const vector<T>& A) {
+        size_t lon = A.size();
+        if (lon <= 1) return A;
+
+        vector<T> izq(A.begin(), A.begin() + lon / 2);
+        vector<T> der(A.begin() + lon / 2, A.end());
+
+        return Ordenar(Sort(izq), Sort(der));
+    }
+};
+
+int main() {
+    vector<int> data = {38, 27, 43, 3, 9, 82, 10};
+    MergeSort<int, ASC<int>> sorter;
+    vector<int> sortedData = sorter.Sort(data);
+
+    cout << "Sorted array: ";
+    for (int num : sortedData) {
+        cout << num << " ";
+    }
+    cout << endl;
+    
+    MergeSort<int, DESC<int>> sorter2;
+    vector<int> sortedData2 = sorter2.Sort(data);
+
+    cout << "Sorted array: ";
+    for (int num : sortedData2) {
+        cout << num << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
