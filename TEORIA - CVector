@@ -1,3 +1,5 @@
+//CVcetor es una estructura que se redimensiona en caso de estar lleno, al hacer push_front se pasan todos los datos un lado a la derecha, de la misma manera al hacer pop, se pasa un espaciohacia atrás
+
 #include <iostream>
 
 using namespace std;
