@@ -1,0 +1,68 @@
+#include <iostream>
+#include <vector>
+#include <functional>
+
+using namespace std;
+
+template <typename T>
+inline vector<T> Ordenar(vector<T> A, vector<T> B, function<bool(T, T)> cmp) {
+    vector<T> ret;
+    T lonA = A.size();
+    T lonB = B.size();
+    T i = 0, j = 0;
+
+    while (i < lonA && j < lonB) {
+        if (cmp(A[i], B[j])) {
+            ret.push_back(A[i]);
+            i++;
+        } else {
+            ret.push_back(B[j]);
+            j++;
+        }
+    }
+
+    while (i < lonA) {
+        ret.push_back(A[i]);
+        i++;
+    }
+    while (j < lonB) {
+        ret.push_back(B[j]);
+        j++;
+    }
+
+    return ret;
+}
+
+template <typename T>
+inline vector<T> MergeSort(vector<T> A, function<bool(T, T)> cmp) {
+    T lon = A.size();
+    if (lon <= 1) return A;
+
+    vector<T> izq(A.begin(), A.begin() + lon / 2);
+    vector<T> der(A.begin() + lon / 2, A.end());
+
+    return Ordenar(MergeSort(izq, cmp), MergeSort(der, cmp), cmp);
+}
+
+int main() {
+    vector<int> data = {38, 27, 43, 3, 9, 82, 10};
+
+    function<bool(int, int)> asc = [](int a, int b) { return a < b; };
+    function<bool(int, int)> desc = [](int a, int b) { return a > b; };
+
+    vector<int> sortedAsc = MergeSort(data, asc);
+    cout << "Sorted array (ascending): ";
+    for (int num : sortedAsc) {
+        cout << num << " ";
+    }
+    cout << endl;
+
+    vector<int> sortedDesc = MergeSort(data, desc);
+    cout << "Sorted array (descending): ";
+    for (int num : sortedDesc) {
+        cout << num << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
