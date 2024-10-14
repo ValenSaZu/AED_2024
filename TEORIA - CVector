@@ -1,0 +1,87 @@
+#include <iostream>
+
+using namespace std;
+
+template <class T>
+struct CVector {
+private:
+    T* data;
+    int capacity;
+    int size;
+
+    void expand() {
+        capacity *= 2;
+        T* newData = new T[capacity];
+        for (int i = 0; i < size; ++i) {
+            newData[i] = data[i];
+        }
+        delete[] data;
+        data = newData;
+    }
+
+    void copy() {
+        for (int i = size - 1; i >= 0; --i) {
+            data[i + 1] = data[i];
+        }
+    }
+
+public:
+    CVector() : capacity(20), size(0) {
+        data = new T[capacity];
+    }
+
+    ~CVector() {
+        delete[] data;
+    }
+
+    void push_back(T a) {
+        if (size == capacity) {
+            expand();
+        }
+        data[size] = a;
+        size++;
+    }
+
+    void push_front(T a) {
+        if (size == capacity) {
+            expand();
+        }
+        copy();
+        data[0] = a;
+        size++;
+    }
+
+    void pop_back() {
+        if (size > 0) {
+            size--;
+        }
+    }
+
+    void pop_front() {
+        if (size > 0) {
+            copy();
+            size--;
+        }
+    }
+
+    T operator[](int i) {
+        return data[i];
+    }
+
+    int getSize() const {
+        return size;
+    }
+};
+
+int main() {
+    CVector<int> vec;
+    vec.push_back(1);
+    vec.push_back(2);
+    vec.push_front(0);
+    
+    for (int i = 0; i < vec.getSize(); ++i) {
+        cout << vec[i] << " ";
+    }
+    
+    return 0;
+}
