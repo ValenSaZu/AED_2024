@@ -6,8 +6,7 @@
 public:  
     virtual void hacerSonido() {  
         std::cout << "El animal hace un sonido" << std::endl;  
-    }  
-class Perro : public Animal {  
+    }  class Perro : public Animal {  
 public:  
     void hacerSonido() override {  
         std::cout << "El perro ladra" << std::endl;  
