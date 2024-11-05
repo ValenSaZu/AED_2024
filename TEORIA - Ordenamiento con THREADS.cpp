@@ -94,7 +94,6 @@ int main() {
         }
 
         nThreads /= 2;
-        vecThread.clear();
     }
 
     for (int i = 0; i < vecOrdenado.size(); i++) {
