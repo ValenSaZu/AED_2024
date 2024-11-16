@@ -9,10 +9,7 @@ struct Node {
     Node* left, * right;
     T val;
 
-    Node(T v) {
-        this->val = v;
-        this->left = this->right = nullptr;
-    }
+    Node(T v) : left(nullptr), right(nullptr), val(v) {}
 };
 
 template <class T>
@@ -41,9 +38,7 @@ struct AVL {
     }
 
     int height(Node<T>* p) {
-        if (p == nullptr) {
-            return 0;
-        }
+        if (!p) return 0;
         return 1 + max(height(p->left), height(p->right));
     }
 
@@ -62,16 +57,15 @@ struct AVL {
     }
 
     void Balance() {
-        for (int i = (camino.size() - 1); i >= 0; i--) {
-            int diferencia = height(camino[i]->right) - height(camino[i]->left);
-
-            if (diferencia == 2) {
+        for (int i = camino.size() - 1; i >= 0; i--) {
+            int diff = height(camino[i]->right) - height(camino[i]->left);
+            if (diff == 2) {
                 if (height(camino[i]->right->left) > height(camino[i]->right->right)) {
                     rightRotate(camino[i]->right);
                 }
                 leftRotate(camino[i]);
             }
-            else if (diferencia == -2) {
+            else if (diff == -2) {
                 if (height(camino[i]->left->right) > height(camino[i]->left->left)) {
                     leftRotate(camino[i]->left);
                 }
@@ -81,11 +75,12 @@ struct AVL {
                 root = camino[i];
             }
             else {
-                if (camino[i - 1]->left == camino[i]) {
-                    camino[i - 1]->left = camino[i];
+                Node<T>* parent = camino[i - 1];
+                if (parent->left == camino[i]) {
+                    parent->left = camino[i];
                 }
                 else {
-                    camino[i - 1]->right = camino[i];
+                    parent->right = camino[i];
                 }
             }
         }
@@ -110,29 +105,138 @@ struct AVL {
         }
     }
 
-    void findTios(Node<T>* root, Node<T>* puntero, int altura, vector<Node<T>*>& tios) {
-        if (!root) return;
-        if (height(root) == altura && root != puntero) {
-            tios.push_back(root);
+    void remove(T value) {
+        Node<T>* target;
+        if (!find(value, target)) {
+            cout << "El valor no existe en el árbol." << endl;
+            return;
         }
-        findTios(root->left, puntero, altura, tios);
-        findTios(root->right, puntero, altura, tios);
+
+        if (target == root) {
+            if (!root->left && !root->right) {
+                delete root;
+                root = nullptr;
+            }
+            else if (!root->left || !root->right) {
+                Node<T>* newRoot = root->left ? root->left : root->right;
+                delete root;
+                root = newRoot;
+            }
+            else {
+                eliminarNodoConDosHijos(root);
+            }
+            camino.erase(std::remove(camino.begin(), camino.end(), target), camino.end());
+            Balance();
+            return;
+        }
+
+        if (!target->left && !target->right) {
+            eliminarHoja(target);
+        }
+        else if (!target->left || !target->right) {
+            eliminarNodoConHijo(target);
+        }
+        else {
+            eliminarNodoConDosHijos(target);
+        }
+
+        camino.erase(std::remove(camino.begin(), camino.end(), target), camino.end());
+        Balance();
     }
 
-    void Primos_Tios(T v, vector<Node<T>*> primos, vector<Node<T>*> tios) {
+    void eliminarHoja(Node<T>* target) {
+        if (camino.size() < 2) return;
+
+        Node<T>* parent = camino[camino.size() - 2];
+        if (parent->left == target) {
+            parent->left = nullptr;
+        }
+        else if (parent->right == target) {
+            parent->right = nullptr;
+        }
+
+        camino.erase(std::remove(camino.begin(), camino.end(), target), camino.end());
+        delete target;
+    }
+
+    void eliminarNodoConHijo(Node<T>* target) {
+        if (camino.size() < 2) return;
+
+        Node<T>* parent = camino[camino.size() - 2];
+        Node<T>* child = target->left ? target->left : target->right;
+
+        if (parent->left == target) {
+            parent->left = child;
+        }
+        else if (parent->right == target) {
+            parent->right = child;
+        }
+
+        camino.erase(std::remove(camino.begin(), camino.end(), target), camino.end());
+        delete target;
+    }
+
+    void eliminarNodoConDosHijos(Node<T>* target) {
+        Node<T>* successorParent = target;
+        Node<T>* successor = target->right;
+
+        while (successor->left) {
+            successorParent = successor;
+            successor = successor->left;
+        }
+
+        target->val = successor->val;
+
+        if (successorParent->left == successor) {
+            successorParent->left = successor->right;
+        }
+        else {
+            successorParent->right = successor->right;
+        }
+
+        camino.erase(std::remove(camino.begin(), camino.end(), successor), camino.end());
+        delete successor;
+    }
+
+    void findTios(Node<T>* root, T value, vector<Node<T>*>& tios) {
         Node<T>* puntero;
-        if (find(v, puntero)) {
-            int padre = height(camino.back());
-            findTios(root, puntero, padre, tios);
-            for (int i{ 0 }; i < tios.size(); i++) {
-                if (tios[i]->right) {
-                    primos.push_back(tios[i]->right);
-                }
-                if (tios[i]->left) {
-                    primos.push_back(tios[i]->left);
-                }
+        if (!find(value, puntero)) return;
+
+        if (camino.size() < 2) return;
+        Node<T>* parent = camino[camino.size() - 2];
+
+        if (camino.size() > 2) {
+            Node<T>* grandparent = camino[camino.size() - 3];
+            if (grandparent->left == parent && grandparent->right) {
+                tios.push_back(grandparent->right);
+            }
+            else if (grandparent->right == parent && grandparent->left) {
+                tios.push_back(grandparent->left);
             }
         }
+    }
+
+    void Primos_Tios(T v, vector<Node<T>*>& primos, vector<Node<T>*>& tios) {
+        tios.clear();
+        primos.clear();
+        findTios(root, v, tios);
+
+        for (auto tio : tios) {
+            if (tio->left) primos.push_back(tio->left);
+            if (tio->right) primos.push_back(tio->right);
+        }
+
+        cout << "Tios: ";
+        for (auto& tio : tios) {
+            cout << tio->val << " ";
+        }
+        cout << endl;
+
+        cout << "Primos: ";
+        for (auto& primo : primos) {
+            cout << primo->val << " ";
+        }
+        cout << endl;
     }
 
     void print(Node<T>* n) {
@@ -169,7 +273,7 @@ void drawTree(sf::RenderWindow& window, Node<T>* node, float x, float y, float x
     circle.setPosition(x, y);
     window.draw(circle);
 
-    sf::Text text(std::to_string(node->val), font, 20);
+    sf::Text text(to_string(node->val), font, 20);
     text.setPosition(x + 8, y + 5);
     window.draw(text);
 
@@ -196,8 +300,8 @@ int main() {
     AVL<int> arbol;
 
     sf::Font font;
-    if (!font.loadFromFile("C:/Users/alumno-d104/Downloads/Arial.ttf")) {
-        std::cerr << "Failed to load font." << std::endl;
+    if (!font.loadFromFile("C:/Users/Usuario/Downloads/Arial.ttf")) {
+        cerr << "Failed to load font." << endl;
         return 1;
     }
 
@@ -214,17 +318,20 @@ int main() {
             if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::A) {
                     int value;
-                    std::cout << "Enter value to add: ";
-                    std::cin >> value;
+                    cout << "Enter value to add: ";
+                    cin >> value;
                     arbol.add(value);
                 }
-            }
-            if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::R) {
+                    int value;
+                    cout << "Enter value to remove: ";
+                    cin >> value;
+                    arbol.remove(value);
+                }
                 if (event.key.code == sf::Keyboard::P) {
                     int value;
-                    std::cout << "Enter value: ";
-                    std::cin >> value;
-
+                    cout << "Enter value to see cousins ​​and uncles: ";
+                    cin >> value;
                     primos.clear();
                     tios.clear();
                     arbol.Primos_Tios(value, primos, tios);

@@ -110,6 +110,99 @@ struct AVL {
         }
     }
 
+    void remove(T value) {
+        Node<T>* target;
+        if (!find(value, target)) {
+            cout << "El valor no existe en el árbol." << endl;
+            return;
+        }
+
+        if (target == root) {
+            if (!root->left && !root->right) {
+                delete root;
+                root = nullptr;
+            }
+            else if (!root->left || !root->right) {
+                Node<T>* newRoot = root->left ? root->left : root->right;
+                delete root;
+                root = newRoot;
+            }
+            else {
+                eliminarNodoConDosHijos(root);
+            }
+            camino.erase(std::remove(camino.begin(), camino.end(), target), camino.end());
+            Balance();
+            return;
+        }
+
+        if (!target->left && !target->right) {
+            eliminarHoja(target);
+        }
+        else if (!target->left || !target->right) {
+            eliminarNodoConHijo(target);
+        }
+        else {
+            eliminarNodoConDosHijos(target);
+        }
+
+        camino.erase(std::remove(camino.begin(), camino.end(), target), camino.end());
+        Balance();
+    }
+
+    void eliminarHoja(Node<T>* target) {
+        if (camino.size() < 2) return;
+
+        Node<T>* parent = camino[camino.size() - 2];
+        if (parent->left == target) {
+            parent->left = nullptr;
+        }
+        else if (parent->right == target) {
+            parent->right = nullptr;
+        }
+
+        camino.erase(std::remove(camino.begin(), camino.end(), target), camino.end());
+        delete target;
+    }
+
+    void eliminarNodoConHijo(Node<T>* target) {
+        if (camino.size() < 2) return;
+
+        Node<T>* parent = camino[camino.size() - 2];
+        Node<T>* child = target->left ? target->left : target->right;
+
+        if (parent->left == target) {
+            parent->left = child;
+        }
+        else if (parent->right == target) {
+            parent->right = child;
+        }
+
+        camino.erase(std::remove(camino.begin(), camino.end(), target), camino.end());
+        delete target;
+    }
+
+    void eliminarNodoConDosHijos(Node<T>* target) {
+        Node<T>* successorParent = target;
+        Node<T>* successor = target->right;
+
+        while (successor->left) {
+            successorParent = successor;
+            successor = successor->left;
+        }
+
+        target->val = successor->val;
+
+        if (successorParent->left == successor) {
+            successorParent->left = successor->right;
+        }
+        else {
+            successorParent->right = successor->right;
+        }
+
+        camino.erase(std::remove(camino.begin(), camino.end(), successor), camino.end());
+        delete successor;
+    }
+
     void print(Node<T>* n) {
         if (!n) return;
         print(n->left);
@@ -182,6 +275,12 @@ int main() {
                     std::cin >> value;
                     arbol.add(value);
                 }
+            }
+            if (event.key.code == sf::Keyboard::R) {
+                int value;
+                cout << "Enter value to remove: ";
+                cin >> value;
+                arbol.remove(value);
             }
         }
 
