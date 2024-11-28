@@ -1,0 +1,43 @@
+// CODIGO PRACTICA para el uso de priority_queue - Gestionador de tareas teniendo en cuenta la prioridad y el tiempo de ejecucion
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <cstdlib>
+#include <windows.h>
+
+using namespace std;
+
+struct Tarea {
+    int Priority;
+    int ExecTime;
+
+    Tarea(int priority = 0, int execTime = 0) : Priority(priority), ExecTime(execTime) {}
+};
+
+struct Min {
+    bool operator()(const Tarea& a, const Tarea& b) {
+        if (a.Priority == b.Priority) {
+            return a.ExecTime > b.ExecTime;
+        }
+        return a.Priority > b.Priority;
+    }
+};
+
+int main() {
+    priority_queue<Tarea, vector<Tarea>, Min> Tareas;
+
+    for (int i = 0; i < 25; i++) {
+        int priority = rand() % 10;
+        int execTime = rand() % 15 + 1;
+        Tareas.push(Tarea(priority, execTime));
+    }
+
+    while (!Tareas.empty()) {
+        Tarea tar = Tareas.top();
+        Sleep(tar.ExecTime * 1000);
+        cout << "Se realizó una tarea con prioridad " << tar.Priority << " y tiempo de ejecución " << tar.ExecTime << " segundos" << endl;
+        Tareas.pop();
+    }
+
+    return 0;
+}
