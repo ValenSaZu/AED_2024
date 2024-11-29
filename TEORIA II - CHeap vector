@@ -1,0 +1,110 @@
+#include <iostream>
+#include <vector>
+#include <stdexcept>
+
+using namespace std;
+
+template <class T>
+struct Min {
+    bool operator()(const T& a, const T& b) const {
+        return a < b;
+    }
+};
+
+template <class T>
+struct Max {
+    bool operator()(const T& a, const T& b) const {
+        return a > b;
+    }
+};
+
+template <class T, class Comparator>
+class CHeap {
+public:
+    vector<T> vect;
+    Comparator comp;
+
+    void push(const T& value) {
+        vect.push_back(value);
+        size_t idx = vect.size() - 1;
+        while (idx > 0) {
+            size_t parent = (idx - 1) / 2;
+            if (comp(vect[idx], vect[parent])) {
+                swap(vect[idx], vect[parent]);
+                idx = parent;
+            }
+            else {
+                break;
+            }
+        }
+    }
+
+    void pop() {
+        if (vect.empty()) {
+            throw runtime_error("Heap is empty");
+        }
+        vect[0] = vect.back();
+        vect.pop_back();
+        size_t idx = 0;
+        while (true) {
+            size_t left = idx * 2 + 1;
+            size_t right = idx * 2 + 2;
+            size_t next = idx;
+
+            if (left < vect.size() && comp(vect[left], vect[next])) {
+                next = left;
+            }
+            if (right < vect.size() && comp(vect[right], vect[next])) {
+                next = right;
+            }
+            if (next != idx) {
+                swap(vect[idx], vect[next]);
+                idx = next;
+            }
+            else {
+                break;
+            }
+        }
+    }
+
+    T top() const {
+        if (vect.empty()) {
+            throw runtime_error("Heap is empty");
+        }
+        return vect.front();
+    }
+
+    bool empty() const {
+        return vect.empty();
+    }
+};
+
+int main() {
+    CHeap<int, Min<int>> minHeap;
+    minHeap.push(10);
+    minHeap.push(5);
+    minHeap.push(20);
+    minHeap.push(2);
+
+    cout << "Heap mínimo:" << endl;
+    while (!minHeap.empty()) {
+        cout << minHeap.top() << " ";
+        minHeap.pop();
+    }
+    cout << endl;
+
+    CHeap<int, Max<int>> maxHeap;
+    maxHeap.push(10);
+    maxHeap.push(5);
+    maxHeap.push(20);
+    maxHeap.push(2);
+
+    cout << "Heap máximo:" << endl;
+    while (!maxHeap.empty()) {
+        cout << maxHeap.top() << " ";
+        maxHeap.pop();
+    }
+    cout << endl;
+
+    return 0;
+}
